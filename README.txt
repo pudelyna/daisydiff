@@ -43,7 +43,7 @@ Java 1.5 or 6
 
 Java:
 =====
-org.outerj.daisy.diff.DaisyDiff{
+org.outerj.daisy.diff.api.DaisyDiff{
 
 /**
  * Diffs two html files, outputting the result to the specified consumer.

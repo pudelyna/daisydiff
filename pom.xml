@@ -1,215 +1,343 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.outerj.daisy</groupId>
-  <artifactId>daisydiff</artifactId>
-  <version>1.2-NX3-SNAPSHOT</version>
-  <name>Daisydiff</name>
+  <!-- ====================================================================== -->
+  <!-- P A R E N T  P R O J E C T  D E S C R I P T I O N                      -->
+  <!-- ====================================================================== -->
+  <parent>
+    <groupId>com.day.cq</groupId>
+    <artifactId>parent</artifactId>
+    <version>46</version>
+  </parent>
+
+  <!-- ====================================================================== -->
+  <!-- P R O J E C T  D E S C R I P T I O N                                   -->
+  <!-- ====================================================================== -->
+  <groupId>com.day.commons</groupId>
+  <artifactId>cq-commons-daisydiff</artifactId>
+  <packaging>bundle</packaging>
+  <version>1.0-SNAPSHOT</version>
+
+  <name>AEM DaisyDiff Embeded bundle</name>
   <description>
-    A Java library to compare HTML files.
-    Nuxeo maintenance branch forked from tag v1.2.
-   </description>
+    Bundle implementing DaisyDiff functionality
+  </description>
 
-  <url>http://daisydiff.googlecode.com</url>
-  <licenses>
-    <license>
-      <name>Apache License Version 2.0, January 2004</name>
-      <url>http://www.apache.org/licenses/</url>
-    </license>
-  </licenses>
+  <scm>
+    <connection>scm:git:git@github.com:pudelyna/daisydiff.git</connection>
+    <developerConnection>scm:git:git@github.com:pudelyna/daisydiff.git</developerConnection>
+    <url>https://github.com/pudelyna/daisydiff/tree/master</url>
+    <tag>HEAD</tag>
+  </scm>
 
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.cyberneko</groupId>
-        <artifactId>html</artifactId>
-        <version>1.9.8</version>
-      </dependency>
-      <dependency>
-        <groupId>org.eclipse.core.runtime</groupId>
-        <artifactId>eclipse-core-runtime</artifactId>
-        <version>20070801</version>
-      </dependency>
-      <dependency>
-        <groupId>xerces</groupId>
-        <artifactId>xercesImpl</artifactId>
-        <version>2.9.1</version>
-      </dependency>
-      <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>4.8.1</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
 
-  <dependencies>
-
-    <dependency>
-      <groupId>org.cyberneko</groupId>
-      <artifactId>html</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.core.runtime</groupId>
-      <artifactId>eclipse-core-runtime</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>xerces</groupId>
-      <artifactId>xercesImpl</artifactId>
-    </dependency>
-
-    <!-- Test -->
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-  </dependencies>
-
+  <!-- ====================================================================== -->
+  <!-- B U I L D                                                              -->
+  <!-- ====================================================================== -->
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.3</version>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-scr-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.sling</groupId>
+        <artifactId>maven-sling-plugin</artifactId>
         <configuration>
-          <source>1.6</source>
-          <target>1.6</target>
+          <slingUrl>http://localhost:4502/system/console</slingUrl>
+          <usePut>false</usePut>
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <extensions>true</extensions>
         <configuration>
-          <encoding>UTF-8</encoding>
+          <instructions>
+            <Bundle-Category>cq5</Bundle-Category>
+            <Import-Package>
+              !sun.io,
+              *
+            </Import-Package>
+            <Bundle-ClassPath>.,{maven-dependencies}</Bundle-ClassPath>
+            <Embed-Dependency>xercesImpl, serializer, xalan, xml-apis</Embed-Dependency>
+            <Embed-Transitive>true</Embed-Transitive>
+            <Export-Package>org.outerj.daisy.diff.api</Export-Package>
+          </instructions>
         </configuration>
       </plugin>
+      <!-- Attach test (re)sources -->
       <plugin>
-        <artifactId>maven-shade-plugin</artifactId>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
         <executions>
           <execution>
-            <id>shade</id>
-            <phase>package</phase>
             <goals>
-              <goal>shade</goal>
+              <goal>test-jar</goal>
             </goals>
-            <configuration>
-              <!-- merge services files -->
-              <transformers>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"></transformer>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer"></transformer>
-                <!-- <transformer -->
-                <!-- implementation="org.apache.maven.plugins.shade.resource.ApacheNoticeResourceTransformer"> -->
-                <!-- <addHeader>false</addHeader> -->
-                <!-- </transformer> -->
-              </transformers>
-              <!-- <createSourcesJar>true</createSourcesJar> -->
-              <!-- <shadeSourcesContent>true</shadeSourcesContent> -->
-              <createDependencyReducedPom>true</createDependencyReducedPom>
-              <!-- <keepDependenciesWithProvidedScope>true</keepDependenciesWithProvidedScope> -->
-              <!-- <promoteTransitiveDependencies>false</promoteTransitiveDependencies> -->
-              <shadedArtifactAttached>true</shadedArtifactAttached>
-              <shadedClassifierName>shaded</shadedClassifierName>
-              <artifactSet>
-                <includes>
-                  <include>org.eclipse.core.runtime:eclipse-core-runtime</include>
-                </includes>
-              </artifactSet>
-              <filters>
-                <filter>
-                  <artifact>*:*</artifact>
-                  <excludes>
-                    <exclude>META-INF/*.SF</exclude>
-                    <exclude>META-INF/*.DSA</exclude>
-                    <exclude>META-INF/*.RSA</exclude>
-                  </excludes>
-                </filter>
-              </filters>
-              <relocations>
-                <relocation>
-                  <pattern>org/eclipse/core</pattern>
-                  <shadedPattern>hidden/org/eclipse/core</shadedPattern>
-                </relocation>
-              </relocations>
-            </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <systemPropertyVariables>
+            <jcr.repository.fixture>Oak</jcr.repository.fixture>
+          </systemPropertyVariables>
+        </configuration>
       </plugin>
     </plugins>
   </build>
 
-  <repositories>
-    <repository>
-      <id>public</id>
-      <url>http://maven.nuxeo.org/nexus/content/groups/public</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-    <repository>
-      <id>public-snapshot</id>
-      <url>http://maven.nuxeo.org/nexus/content/groups/public-snapshot</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </repository>
-  </repositories>
+  <!-- ====================================================================== -->
+  <!-- R E P O R T I N G                                                      -->
+  <!-- ====================================================================== -->
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <excludePackageNames>
+            org.eclipse.compare
+          </excludePackageNames>
+        </configuration>
+      </plugin>
+    </plugins>
+  </reporting>
 
-  <pluginRepositories>
-    <pluginRepository>
-      <id>public</id>
-      <url>http://maven.nuxeo.org/nexus/content/groups/public</url>
-      <name>Nuxeo virtual release repository</name>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </pluginRepository>
-    <pluginRepository>
-      <id>public-snapshot</id>
-      <url>http://maven.nuxeo.org/nexus/content/groups/public-snapshot</url>
-      <name>Nuxeo virtual snapshot repository</name>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <updatePolicy>always</updatePolicy>
-        <enabled>true</enabled>
-      </snapshots>
-    </pluginRepository>
-  </pluginRepositories>
+  <!-- ====================================================================== -->
+  <!-- D E P E N D E N C I E S                                                -->
+  <!-- ====================================================================== -->
+  <dependencies>
+    <dependency>
+      <groupId>net.sourceforge.nekohtml</groupId>
+      <artifactId>com.springsource.org.cyberneko.html</artifactId>
+      <version>1.9.11</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>xerces</groupId>
+      <artifactId>xercesImpl</artifactId>
+      <version>2.9.1</version>
+    </dependency>
+    <dependency>
+      <groupId>xalan</groupId>
+      <artifactId>xalan</artifactId>
+      <version>2.7.1</version>
+    </dependency>
+    <dependency>
+      <groupId>xml-apis</groupId>
+      <artifactId>xml-apis</artifactId>
+      <version>1.3.04</version>
+    </dependency>
+    <dependency>
+      <groupId>xalan</groupId>
+      <artifactId>serializer</artifactId>
+      <version>2.7.1</version>
+    </dependency>
 
-  <distributionManagement>
-    <repository>
-      <id>vendor-releases</id>
-      <url>
-        https://maven.nuxeo.org/nexus/content/repositories/vendor-releases
-      </url>
-    </repository>
-    <snapshotRepository>
-      <id>vendor-snapshots</id>
-      <url>
-        https://maven.nuxeo.org/nexus/content/repositories/vendor-snapshots
-      </url>
-      <uniqueVersion>true</uniqueVersion>
-    </snapshotRepository>
-  </distributionManagement>
+    <dependency>
+      <groupId>com.adobe.granite</groupId>
+      <artifactId>com.adobe.granite.xssprotection</artifactId>
+      <version>5.5.24</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.jcr</groupId>
+      <artifactId>jcr</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.sling</groupId>
+      <artifactId>org.apache.sling.jcr.api</artifactId>
+      <version>2.2.0</version>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.jcr</groupId>
+          <artifactId>jcr</artifactId>
+        </exclusion>
+      </exclusions>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.jackrabbit</groupId>
+      <artifactId>jackrabbit-jcr-commons</artifactId>
+      <version>2.6.3</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.jackrabbit</groupId>
+      <artifactId>jackrabbit-api</artifactId>
+      <version>2.4.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.day.crx</groupId>
+      <artifactId>crx-api</artifactId>
+      <version>2.2.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>1.4</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <version>2.4</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-collections</groupId>
+      <artifactId>commons-collections</artifactId>
+      <version>3.2.1</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.compendium</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.sling</groupId>
+      <artifactId>org.apache.sling.api</artifactId>
+      <version>2.1.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.sling</groupId>
+      <artifactId>org.apache.sling.jcr.resource</artifactId>
+      <version>2.0.4-incubator</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.sling</groupId>
+          <artifactId>org.apache.sling.jcr.api</artifactId>
+        </exclusion>
+      </exclusions>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.sling</groupId>
+      <artifactId>org.apache.sling.commons.json</artifactId>
+      <version>2.0.4-incubator</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.sling</groupId>
+      <artifactId>org.apache.sling.runmode</artifactId>
+      <version>2.0.3-tlp-R818849</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.sling</groupId>
+      <artifactId>org.apache.sling.scripting.api</artifactId>
+      <version>2.1.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.sling</groupId>
+      <artifactId>org.apache.sling.servlets.post</artifactId>
+      <version>2.2.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>joda-time</groupId>
+      <artifactId>joda-time</artifactId>
+      <version>2.7</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.sling</groupId>
+      <artifactId>org.apache.sling.commons.osgi</artifactId>
+      <version>2.0.6</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.adobe.granite</groupId>
+      <artifactId>com.adobe.granite.i18n</artifactId>
+      <version>5.5.2</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.adobe.granite</groupId>
+      <artifactId>com.adobe.granite.ui.commons</artifactId>
+      <version>5.5.214</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.adobe.granite</groupId>
+      <artifactId>com.adobe.granite.license</artifactId>
+      <version>0.6.6</version>
+      <scope>provided</scope>
+    </dependency>
 
-  <scm>
-    <connection>scm:git:git://github.com/nuxeo/daisydiff.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com:nuxeo/daisydiff.git</developerConnection>
-    <url>https://github.com/nuxeo/daisydiff</url>
-  </scm>
-
+    <!-- Testing -->
+    <dependency>
+      <groupId>com.adobe.granite</groupId>
+      <artifactId>com.adobe.granite.test.tooling</artifactId>
+      <version>0.0.20</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.jackrabbit</groupId>
+          <artifactId>jackrabbit-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>junit</groupId>
+          <artifactId>junit-dep</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.day.crx.sling</groupId>
+      <artifactId>com.day.crx.sling.testing</artifactId>
+      <version>2.2.0</version>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.sling</groupId>
+          <artifactId>org.apache.sling.jcr.base</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.jackrabbit</groupId>
+      <artifactId>jackrabbit-core</artifactId>
+      <version>2.4.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.adobe.granite</groupId>
+      <artifactId>com.adobe.granite.replication.core</artifactId>
+      <version>5.5.8</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
 </project>
