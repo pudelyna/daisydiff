@@ -18,6 +18,7 @@ import java.io.StringReader;
 import java.util.Locale;
 
 import org.junit.Test;
+import org.outerj.daisy.diff.api.DaisyDiff;
 import org.xml.sax.InputSource;
 import org.xml.sax.helpers.DefaultHandler;
 

@@ -12,9 +12,6 @@ package org.eclipse.compare.rangedifferencer;
 
 import java.util.ArrayList;
 
-import org.eclipse.core.runtime.Assert;
-import org.eclipse.core.runtime.IProgressMonitor;
-
 /**
  * The algorithm used is an objectified version of one described in: <it>A File
  * Comparison Program,</it> by Webb Miller and Eugene W. Myers, Software
@@ -72,11 +69,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
         }
     }
 
-    public static RangeDifference[] findDifferences(IProgressMonitor pm,
-            IRangeComparator left, IRangeComparator right) {
-
-        // assert that both IRangeComparators are of the same class
-        Assert.isTrue(right.getClass().equals(left.getClass()));
+    public static RangeDifference[] findDifferences(IRangeComparator left, IRangeComparator right) {
 
         int rightSize = right.getRangeCount();
         int leftSize = left.getRangeCount();
@@ -86,10 +79,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
         // row of d
         //
         int diagLen = 2 * Math.max(rightSize, leftSize); // bound on the size
-                                                            // of edit script
+        // of edit script
         int maxDiagonal = diagLen;
         int lastDiagonal[] = new int[diagLen + 1]; // the row containing the
-                                                    // last d
+        // last d
         // on diagonal k (lastDiagonal[k] = row)
         int origin = diagLen / 2; // origin of diagonal 0
 
@@ -110,26 +103,17 @@ import org.eclipse.core.runtime.IProgressMonitor;
         if (lower > upper)
             return EMPTY_RESULT;
 
-        // System.out.println("findDifferences: " + maxDiagonal + " " + lower +
-        // " " + upper);
-
         // for each value of the edit distance
         for (int d = 1; d <= maxDiagonal; ++d) { // d is the current edit
-                                                    // distance
-
-            if (pm != null)
-                pm.worked(1);
+            // distance
 
             if (right.skipRangeComparison(d, maxDiagonal, left))
                 return EMPTY_RESULT; // should be something we already found
 
             // for each relevant diagonal (-d, -d+2 ..., d-2, d)
             for (int k = lower; k <= upper; k += 2) { // k is the current
-                                                        // diagonal
+                // diagonal
                 LinkedRangeDifference edit;
-
-                if (pm != null && pm.isCanceled())
-                    return EMPTY_RESULT;
 
                 if (k == origin - d || k != origin + d
                         && lastDiagonal[k + 1] >= lastDiagonal[k - 1]) {
@@ -150,7 +134,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
                 col = row + k - origin;
                 edit.fRightStart = row;
                 edit.fLeftStart = col;
-                Assert.isTrue(k >= 0 && k <= maxDiagonal);
                 script[k] = edit;
 
                 // slide down the diagonal as far as possible
@@ -159,10 +142,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
                     ++row;
                     ++col;
                 }
-
-                Assert.isTrue(k >= 0 && k <= maxDiagonal); // Unreasonable
-                                                            // value for
-                                                            // diagonal index
                 lastDiagonal[k] = row;
 
                 if (row == rightSize && col == leftSize) {
@@ -177,8 +156,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
             --lower;
             ++upper;
         }
-        // too many differences
-        Assert.isTrue(false);
         return null;
     }
 
@@ -186,7 +163,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
      * Tests if two ranges are equal
      */
     private static boolean rangesEqual(IRangeComparator a, int ai,
-            IRangeComparator b, int bi) {
+                                       IRangeComparator b, int bi) {
         return a.rangesEqual(ai, b, bi);
     }
 
@@ -246,7 +223,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
                     es.fLeftLength = 0;
                 }
                 es.fLeftStart++; // meaning of range changes from "insert
-                                    // after", to "replace with"
+                // after", to "replace with"
 
             }
             //
